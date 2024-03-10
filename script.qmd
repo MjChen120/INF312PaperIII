@@ -201,17 +201,61 @@ data <- data[c(2:ncol(data))]
 colnames(data)[1] <- "Work Hours/Years"
 # Get rid of the first letter X for each of the years
 colnames(data) <- gsub("X", "", colnames(data))
-kable(data,row.names = FALSE)|>
-  kable_styling() |>
-  row_spec(6, hline_after = TRUE)
+#kable(data,row.names = FALSE)|>
+ # kable_styling() |>
+  #row_spec(6, hline_after = TRUE)
 
 ```
 
 ## Comparsion between the years around 2008
 
 ```{r}
+#| label: fig-beliefs-vs-satis
+#| fig-cap: Beliefs in Free will vs. Job Satisfaction between Two Populations
+#| fig-subcap: ["Year 1998","Year 2008","Year 2021", "Total"]
+#| layout-ncol: 2
+#| echo: false
+#| warning: false
+#| message: false
 
+#still need to modify the graphs
 
+data <- read.csv("cleaned_categorized_data.csv")
+data <- data[c(2:ncol(data))]
+# Get rid of the first letter X for each of the years
+colnames(data) <- gsub("X", "", colnames(data))
+
+Data_1998 <- select(data,work_hours,`1998`)
+ggplot(Data_1998,aes(x=work_hours,y=`1998`)) +
+  geom_bar(stat="identity") + 
+  theme_minimal() + # Make the theme neater
+  labs(x = "Working Hours", y = "Number of Reports") +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom")
+
+Data_2008 <- select(data,work_hours,`2008`)
+ggplot(Data_2008,aes(x=work_hours,y=`2008`)) +
+  geom_bar(stat="identity") + 
+  theme_minimal() + # Make the theme neater
+  labs(x = "Working Hours", y = "Number of Reports") +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom")
+
+Data_2021 <- select(data,work_hours,`2021`)
+ggplot(Data_2021,aes(x=work_hours,y=`2021`)) +
+  geom_bar(stat="identity") + 
+  theme_minimal() + # Make the theme neater
+  labs(x = "Working Hours", y = "Number of Reports") +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom")
+
+Data_Total <- select(data,work_hours,Total)
+ggplot(Data_Total,aes(x=work_hours,y= Total)) +
+  geom_bar(stat="identity") + 
+  theme_minimal() + # Make the theme neater
+  labs(x = "Working Hours", y = "Number of Reports") +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom")
 ```
 
 ## Percentage of Non-response rate
@@ -222,20 +266,6 @@ data <- read.csv("cleaned_categorized_data.csv")
 data <- data[c(2:ncol(data))]
 data <- data[1:6,]
 
-data_long <- data %>% 
-  pivot_longer(cols = everything(), names_to = "Question", values_to = "Response")
-
-# Calculate frequencies
-FWdata_freq <- FWdata_long %>% 
-  group_by(Question, Response) %>% 
-  summarise(Frequency = n()) %>% 
-  ungroup()
-
-# Calculate percentages
-FWdata_freq <- FWdata_freq %>% 
-  group_by(Question) %>% 
-  mutate(Percent = Frequency / sum(Frequency) * 100) %>% 
-  ungroup()
 
 
 ```
