@@ -1,98 +1,160 @@
 ---
-title: "script"
+title: "Title"
+subtitle: "Subtitle"
+author: 
+  - Mingjia Chen
+  - Catherine Punnoose
+  - Tianen (Evan) Hao
+thanks: "Code and data are available at: https://github.com/ShadyEvan4830/Labour_Market_Resilience.git"
+date: March 11, 2024
+date-format: long
+abstract: "First sentence, second sentence, third sentence."
 format: pdf
-editor: visual
+toc: true
+number-sections: true
+bibliography: bibliography.bib
 ---
 
 ```{r}
 #| include: false
 #| warning: false
 #| message: false
+
+#download the packages if necessary, then load the packages
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(janitor,here,dplyr,tidyverse,knitr,kableExtra,ggplot2)
+
 library(janitor)
 library(tidyverse)
 library(knitr)
 library(dplyr)
 library(kableExtra)
 library(here)
+library(ggplot2)
 ```
 
-For demographic factors, we retrieved the following data as described in @tbl-uss-demographic.
+# Introduction
+
+# Data
+
+## Source Data
+
+For the analysis, we retrieved the following data as described in @tbl-use-var.
 
 | Variable | New Name   | Description                     | Example |
 |----------|------------|---------------------------------|---------|
 | response | work hours | Respondent's response           | 23      |
 | year     | year       | The year of the survey recorded | 2007    |
 
-: Demographic data retrieved from USS {#tbl-uss-demographic}
+: Demographic data retrieved from GSS {#tbl-use-var}
+
+## Data Cleaning
+
+The data was downloaded and filtered for the selected variables from the selected data variables from GSS[^1]. The data cleaning was performed based on value definitions as defined in the GSS codebook [@gssCodebook]. One of the variable names `response` is renamed to be more informative [@tbl-use-var].
+
+The data was thus been cleaned by using the open source statistically programming language R [@citeR], with libraries `tidyverse` [@tidyverse], `ggplot2` [@ggplot2], `dplyr` [@dplyr], `readr` [@readr], `tibble` [@tibble], `here` [@here], `kableExtra` [@kableExtra], `janitor` [@janitor], and `knitr` [@knitr].
+
+[^1]: https://gss.norc.org/documents/stata/GSS_stata.zip
 
 ```{r}
-# load dataset that has been cropped for analysis
-data <- read.csv(here::here("/inputs/data/Cropped_Data.csv"))
+#| label: tbl-data-overview
+#| tbl-cap: Overview of the Categorized Data 
+#| echo: false
+#| warning: false
+#| message: false
 
-# the first column of the dataset is the names of the rows
-# so we renamed the row names based on first column and 
-#deleted the column at the end
-row_number <- nrow(data)
-for (i in 1:row_number) {
-  rownames(data)[i] = data[i,1]
-}
-
+data<- read.csv("cleaned_categorized_data.csv")
 # Delete the column
 data <- data[c(2:ncol(data))]
-
+colnames(data)[1] <- "Work Hours/Years"
 # Get rid of the first letter X for each of the years
 colnames(data) <- gsub("X", "", colnames(data))
 
-# Rename part of the row names 
-#(i.e. change .i Inapplicable into Inapplicable for better
-#data representation) 
-rownames(data)[1] <- "Inapplicable"
-rownames(data)[2] <- "No answer"
-rownames(data)[3] <- "Do not Know/Cannot Choose"
-rownames(data)[4] <- "Skipped on Web"
-
-# Save the cleaned data
-write.csv(data,"Cleaned_Data.csv")
-
+data_selected <- data[c("Work Hours/Years", "1998","2008","2021","Total")]
+kable(data_selected,row.names = FALSE)|>
+  kable_styling() |>
+  row_spec(6, hline_after = TRUE)
 ```
 
-# Categorized Data
+## Data Limitations 
+
+## Survey Methodology 
+
+### 1998 Survey Methodology 
+```{r}
+#| label: fig-Survey-1998
+#| tbl-cap: Overview of the 1998 Survey Data 
+#| echo: false
+#| warning: false
+#| message: false
+data <- read.csv("cleaned_categorized_data.csv")
+data <- data[1:6,]
+
+ggplot(data, aes(x = "", y = X1998, fill = work_hours)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  scale_fill_brewer(palette = "Set3") +  # Use a color palette
+  theme_void() +  # Remove background and gridlines
+  labs(title = "1998 Survey Results") +
+  theme(plot.title = element_text(hjust = 0.5, size = 16))
+```
+\break
+
+### 2008 Survey Methodology
 
 ```{r}
-# load dataset that has been cropped for analysis
-data <- read.csv("Cropped_Data.csv")
+#| label: fig-Survey-2008
+#| tbl-cap: Overview of the 2008 Survey Data 
+#| echo: false
+#| warning: false
+#| message: false
 
-# the first column of the dataset is the names of the rows
-# so we renamed the row names based on first column and 
-#deleted the column at the end
-row_number <- nrow(data)
-for (i in 1:row_number) {
-  rownames(data)[i] = data[i,1]
-}
+data <- read.csv("cleaned_categorized_data.csv")
+data <- data[1:6,]
 
-# Delete the column
-data <- data[c(2:ncol(data))]
+ggplot(data, aes(x = "", y = X2008, fill = work_hours)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  scale_fill_brewer(palette = "Set3") +  # Use a color palette
+  theme_void() +  # Remove background and gridlines
+  labs(title = "2008 Survey Results") +
+  theme(plot.title = element_text(hjust = 0.5, size = 16))
+```
+\break
 
-# Get rid of the first letter X for each of the years
-colnames(data) <- gsub("X", "", colnames(data))
+### Gap in 2020 Data 
+```{r}
+#| label: fig-Survey-2021
+#| tbl-cap: Overview of the 2021 Survey Data 
+#| echo: false
+#| warning: false
+#| message: false
+data <- read.csv("cleaned_categorized_data.csv")
+data <- data[1:6,]
 
-# Rename part of the row names 
-#(i.e. change .i Inapplicable into Inapplicable for better
-#data representation) 
-rownames(data)[1] <- "Inapplicable"
-rownames(data)[2] <- "No answer"
-rownames(data)[3] <- "Do not Know/Cannot Choose"
-rownames(data)[4] <- "Skipped on Web"
-
-# Save the cleaned data
-write.csv(data,"Cleaned_Data.csv")
+ggplot(data, aes(x = "", y = X2021, fill = work_hours)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  scale_fill_brewer(palette = "Set3") +  # Use a color palette
+  theme_void() +  # Remove background and gridlines
+  labs(title = "2021 Survey Results") +
+  theme(plot.title = element_text(hjust = 0.5, size = 16))
 ```
 
-## Average working hours of 1998 vs. 2008 vs. 2021. vs Total
+### Non-responses
+
+
+# Results
+
+## Working Hour Comparison Between Financial Events 
 
 ```{r}
-#Graphs
-library(ggplot2)
+#| label: fig-ave-hour-comparison
+#| fig-cap: Average Working Hours Comparison between Finanicial Events
+#| echo: false
+#| warning: false
+#| message: false
+
 data <- read.csv("Cleaned_Data.csv")
 # Get rid of the first letter X for each of the years
 colnames(data)[1] <- "work_hours"
@@ -126,146 +188,9 @@ ggplot(average_hours,aes(x=years,y=averages)) +
   labs(x = "Year", y = "Average Working Hour") +
   scale_color_brewer(palette = "Set1") +
   theme(legend.position = "bottom")
-
 ```
 
-## Data Cleaning: Modify hours into 1-20,20-40,40-60,60-80, 80+ categories
-
-```{r}
-data <- read.csv("Cleaned_Data.csv")
-colnames(data)[1] <- "work_hours"
-colnames(data) <- gsub("X", "", colnames(data))
-
-cate_data <- data
-year <- colnames(data)
-Hours <- c("No Response","0-20","21-40","41-60","61-80","80+","Total")
-
-col_number <- ncol(cate_data) -1
-
-filtered_df1 <- cate_data %>%
-  filter(work_hours < 20) 
-
-tweenties <- rep(0, 35)
-for(i in 1:col_number){
-  tweenties[i] <- sum(filtered_df1 [, i+1])
-}
-
-filtered_df2 <- cate_data %>%
-  filter(work_hours < 40) %>%
-  filter(work_hours > 20)
-
-forties <- rep(0, 35)
-for(i in 1:col_number){
-  forties[i] <- sum(filtered_df2[, i+1])
-}
-
-filtered_df3 <- cate_data %>%
-  filter(work_hours < 60) %>%
-  filter(work_hours > 40)
-
-sixties <- rep(0, 35)
-for(i in 1:col_number){
-  sixties[i] <- sum(filtered_df3 [, i+1])
-}
-
-filtered_df4 <- cate_data %>%
-  filter(work_hours < 80) %>%
-  filter(work_hours > 60)
-
-eighties <- rep(0, 35)
-for(i in 1:col_number){
-  eighties[i] <- sum(filtered_df4[, i+1])
-}
-
-filtered_df5 <- cate_data %>%
-  filter(work_hours > 80) 
-filtered_df5 <- filtered_df5[5:14,]
-
-more <- rep(0, 35)
-for(i in 1:col_number){
-  more[i] <- sum(filtered_df5[, i+1])
-}
-
-filtered_df6 <- cate_data %>%
-  filter(work_hours > 80) 
-filtered_df6 <- filtered_df6[1:4,]
-
-No_Response <- rep(0, 35)
-for(i in 1:col_number){
-  No_Response[i] <- sum(filtered_df6[, i+1])
-}
-
-rm(filtered_df1,filtered_df2,filtered_df3,filtered_df4,filtered_df5,filtered_df6)
-
-total <- data[95,2:36]
-
-cate_data <- rbind(No_Response,tweenties,forties,sixties,eighties,more,total)
-cate_data <- data.frame(cbind(Hours,cate_data))
-colnames(cate_data) <- year
-
-write.csv(cate_data,"cleaned_categorized_data.csv")
-
-```
-
-```{r}
-data<- read.csv("cleaned_categorized_data.csv")
-# Delete the column
-data <- data[c(2:ncol(data))]
-colnames(data)[1] <- "Work Hours/Years"
-# Get rid of the first letter X for each of the years
-colnames(data) <- gsub("X", "", colnames(data))
-kable(data,row.names = FALSE)|>
-  kable_styling() |>
-  row_spec(6, hline_after = TRUE)
-
-```
-
-## 1998 Survey Methodology
-
-```{r}
-data <- read.csv("cleaned_categorized_data.csv")
-data <- data[1:6,]
-
-ggplot(data, aes(x = "", y = X1998, fill = work_hours)) +
-  geom_bar(stat = "identity", width = 1) +
-  coord_polar("y", start = 0) +
-  scale_fill_brewer(palette = "Set3") +  # Use a color palette
-  theme_void() +  # Remove background and gridlines
-  labs(title = "1998 Survey Results") +
-  theme(plot.title = element_text(hjust = 0.5, size = 16))
-```
-
-## 2008 Survey Methodology
-
-```{r}
-data <- read.csv("cleaned_categorized_data.csv")
-data <- data[1:6,]
-
-ggplot(data, aes(x = "", y = X2008, fill = work_hours)) +
-  geom_bar(stat = "identity", width = 1) +
-  coord_polar("y", start = 0) +
-  scale_fill_brewer(palette = "Set3") +  # Use a color palette
-  theme_void() +  # Remove background and gridlines
-  labs(title = "2008 Survey Results") +
-  theme(plot.title = element_text(hjust = 0.5, size = 16))
-```
-
-## 2021 Survey Methodology
-
-```{r}
-data <- read.csv("cleaned_categorized_data.csv")
-data <- data[1:6,]
-
-ggplot(data, aes(x = "", y = X2021, fill = work_hours)) +
-  geom_bar(stat = "identity", width = 1) +
-  coord_polar("y", start = 0) +
-  scale_fill_brewer(palette = "Set3") +  # Use a color palette
-  theme_void() +  # Remove background and gridlines
-  labs(title = "2021 Survey Results") +
-  theme(plot.title = element_text(hjust = 0.5, size = 16))
-```
-
-## Categorical Working Hour Comparsion between the Years
+\break 
 
 ```{r}
 #| label: fig-cate-comparisons
@@ -316,9 +241,16 @@ ggplot(Data_Total,aes(x=work_hours,y= Total)) +
   theme(legend.position = "bottom")
 ```
 
-## Percentage of Non-response rate
+\break
 
+## Nonreponse Rate
 ```{r}
+#| label: fig-nonresponse-rate
+#| fig-cap: Average Working Hours Comparison between Finanicial Events
+#| echo: false
+#| warning: false
+#| message: false
+
 # Calculate percentages
 data <- read.csv("cleaned_categorized_data.csv")
 data <- data[c(2:ncol(data))]
@@ -363,3 +295,34 @@ ggplot(non_response_data, aes(x = years,y=non_response_rate)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 ```
+
+\break
+
+# Discussion
+
+## Labour Market Response Across Economic Crises
+
+## Demographic Disparities in Labour Market Participation
+
+### Younger Workers and Educational Attainment
+
+### Women in the Labour Market
+
+## Political Affiliation and Labour Market Perceptions
+
+##  Ethical Considerations and Bias
+
+## Limitations
+
+## Future Research
+
+## Journal Study: Directions on Non-response Rates
+
+# Conclusion
+
+\appendix
+
+# Appendix {-}
+
+\newpage
+# References
